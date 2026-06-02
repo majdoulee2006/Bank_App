@@ -52,15 +52,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // Show OTP overlay
-    _showOtpOverlay(result.otp!);
+    final otp = result.otp!;
+    final phone = _phoneCtrl.text.trim();
+
+    // Show OTP overlay before navigation
+    _showOtpOverlay(otp);
 
     // Navigate to OTP screen
+    if (!mounted) return;
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => _OtpVerifyScreen(
-        phone: _phoneCtrl.text.trim(),
-        otp: result.otp!,
-      ),
+      builder: (_) => _OtpVerifyScreen(phone: phone, otp: otp),
     ));
   }
 
@@ -208,6 +209,8 @@ class _OtpVerifyScreenState extends State<_OtpVerifyScreen> {
     if (!mounted) return;
     setState(() => _isLoading = false);
 
+    if (!mounted) return;
+
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: AppTheme.error),
@@ -263,8 +266,8 @@ class _OtpVerifyScreenState extends State<_OtpVerifyScreen> {
         child: Container(
           decoration: const BoxDecoration(gradient: AppTheme.bgGradient),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, MediaQuery.of(context).viewInsets.bottom + 24),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Align(
                   alignment: Alignment.topRight,
@@ -273,9 +276,9 @@ class _OtpVerifyScreenState extends State<_OtpVerifyScreen> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
                 const Icon(Icons.sms_outlined, color: AppTheme.primary, size: 64),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 const Text('أدخل رمز التحقق',
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
                     textAlign: TextAlign.center),
@@ -283,19 +286,16 @@ class _OtpVerifyScreenState extends State<_OtpVerifyScreen> {
                 const Text('الرمز ظاهر في الإشعار أعلى الشاشة\nصالح لمدة 5 دقائق',
                     style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
                     textAlign: TextAlign.center),
-                const SizedBox(height: 48),
+                const SizedBox(height: 40),
                 TextField(
                   controller: _otpCtrl,
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   maxLength: 6,
                   style: const TextStyle(color: Colors.white, fontSize: 28, letterSpacing: 8, fontWeight: FontWeight.bold),
-                  decoration: const InputDecoration(
-                    hintText: '------',
-                    counterText: '',
-                  ),
+                  decoration: const InputDecoration(hintText: '------', counterText: ''),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
                 GradientButton(
                   label: 'تأكيد وإنشاء الحساب',
                   isLoading: _isLoading,
